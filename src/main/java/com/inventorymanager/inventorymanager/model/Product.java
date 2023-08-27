@@ -2,6 +2,10 @@ package com.inventorymanager.inventorymanager.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.List;
 
 @Getter
 @Entity
@@ -11,8 +15,17 @@ public class Product {
     @Id
     private Long id;
 
-    @Column(name="vendor_id")
-    private Long vendorId;
+    @ManyToOne()
+    @JoinColumn(name = "vendor_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Vendor vendor;
+
+    @OneToMany(mappedBy = "product")
+    private List<Shelf> shelves;
+
+    public Product() {
+    }
+
     private String name;
     private String sku;
 
@@ -20,9 +33,14 @@ public class Product {
     private Double pricePerUnit;
     private String category;
 
-    public void setVendor(Long vendorId) {
-        this.vendorId = vendorId;
+    public Product(Vendor vendor, String name, String sku, Double pricePerUnit, String category) {
+        this.vendor = vendor;
+        this.name = name;
+        this.sku = sku;
+        this.pricePerUnit = pricePerUnit;
+        this.category = category;
     }
+
 
     public void setName(String name) {
         this.name = name;
