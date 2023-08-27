@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -32,8 +33,9 @@ public class DataSeeder implements CommandLineRunner {
         return "sku_" + productName.toLowerCase() + "_" + category.toLowerCase();
     }
 
-    private Double generateRandomPrice() {
-        return 50 + new Random().nextDouble() * 450;
+    private String generateRandomPrice() {
+        return "Rs "+String.format("%.2f", 50 + new Random().nextDouble() * 450);
+
     }
 
     @Override
@@ -49,17 +51,20 @@ public class DataSeeder implements CommandLineRunner {
         }
         vendorRepository.saveAll(vendors);
 
+        for(int i=0;i<10;i++){
+            Shelf shelf = new Shelf(new Random().nextInt(10), i,false,10);
+            shelves.add(shelf);
+        }
+        shelfRepository.saveAll(shelves);
+
+
         // Seed products and shelves
         for (int i = 0; i < 10; i++) {
             String productName = "Product " + i;
             String category = "Category " + i;
-
-            Product product = new Product(vendors.get(i),productName, generateSKU(productName, category), generateRandomPrice(), category);
+            Product product = new Product(vendors.get(i),productName, generateSKU(productName, category), generateRandomPrice(), category,shelves.get(i));
             products.add(product);
-            Shelf shelf = new Shelf(new Random().nextInt(50), products.get(i));
-            shelves.add(shelf);
         }
         productRepository.saveAll(products);
-        shelfRepository.saveAll(shelves);
     }
 }

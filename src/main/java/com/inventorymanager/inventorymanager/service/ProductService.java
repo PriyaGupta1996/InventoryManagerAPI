@@ -31,22 +31,16 @@ public class ProductService {
             productDTO.setPricePerUnit(product.getPricePerUnit());
             productDTO.setCategory(product.getCategory());
 
-            if (product.getVendor() != null) {
-                productDTO.setVendorLink(product.getVendor().getLink());
-            }
+            if (product.getVendorId() != null)
+                productDTO.setVendorLink(product.getVendorId().getLink());
 
-            List<Long> shelfIds = new ArrayList<>();
-            int totalQuantity = 0; // Initialize total quantity
-            for (Shelf shelf : product.getShelves()) {
-                shelfIds.add(shelf.getId());
-                totalQuantity += shelf.getStock(); // Add stock to total quantity
-            }
-            productDTO.setShelves(shelfIds);
-            productDTO.setQuantity(totalQuantity); // Set total quantity
-
+            Shelf shelf =product.getShelfId();
+            int shelfNumber= shelf.getShelfNumber();
+            int stock=shelf.getStock();
+            productDTO.setShelfNumber(shelfNumber);
+            productDTO.setQuantity(stock);
             productDTOs.add(productDTO);
         }
-
         return productDTOs;
     }
 }

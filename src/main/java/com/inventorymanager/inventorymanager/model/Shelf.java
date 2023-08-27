@@ -1,9 +1,11 @@
 package com.inventorymanager.inventorymanager.model;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+@Data
 @Getter
 @Entity
 @Table(name = "shelf")
@@ -12,24 +14,24 @@ public class Shelf {
     @Id
     private Long id;
     private int stock;
+    @Column(name="shelf_number")
+    private int shelfNumber;
+    @Column(name="is_prime")
+    private boolean isPrime;
+    @Column(name="max_capacity")
+    private int maxCapacity;
 
-    public Shelf(int stock, Product product) {
+//    @OneToOne
+//    @JoinColumn(name = "product_id", referencedColumnName = "id")
+//    @OnDelete(action = OnDeleteAction.CASCADE)
+//    private Product productId;
+
+    public Shelf() {}
+
+    public Shelf(int stock, int shelfNumber, boolean isPrime, int maxCapacity) {
         this.stock = stock;
-        this.product = product;
+        this.shelfNumber = shelfNumber;
+        this.isPrime = isPrime;
+        this.maxCapacity = maxCapacity;
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Product product;
-
-    public Shelf() {
-
-    }
-
-
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
-
 }

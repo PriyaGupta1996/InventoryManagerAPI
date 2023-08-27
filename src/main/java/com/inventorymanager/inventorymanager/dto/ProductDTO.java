@@ -9,9 +9,9 @@ public class ProductDTO {
     private Long id;
     private String name;
     private String sku;
-    private Double pricePerUnit;
+    private String pricePerUnit;
     private String category;
     private String vendorLink;
-    private List<Long> shelves;
+    private int shelfNumber;
     private int quantity;
 }

@@ -1,12 +1,9 @@
 package com.inventorymanager.inventorymanager.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import java.util.List;
-
+@Data
 @Getter
 @Entity
 @Table(name = "product")
@@ -17,44 +14,26 @@ public class Product {
 
     @ManyToOne()
     @JoinColumn(name = "vendor_id", referencedColumnName = "id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Vendor vendor;
+    private Vendor vendorId;
 
-    @OneToMany(mappedBy = "product")
-    private List<Shelf> shelves;
-
-    public Product() {
-    }
-
+    @OneToOne
+    @JoinColumn(name="shelf_id", referencedColumnName = "id")
+    private Shelf shelfId;
     private String name;
     private String sku;
 
     @Column(name="price_per_unit")
-    private Double pricePerUnit;
+    private String pricePerUnit;
     private String category;
 
-    public Product(Vendor vendor, String name, String sku, Double pricePerUnit, String category) {
-        this.vendor = vendor;
+    public Product() {}
+
+    public Product(Vendor vendorId, String name, String sku, String pricePerUnit, String category,Shelf shelfId) {
+        this.vendorId = vendorId;
         this.name = name;
         this.sku = sku;
         this.pricePerUnit = pricePerUnit;
         this.category = category;
-    }
-
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
-
-    public void setPrice_per_unit(Double pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
+        this.shelfId=shelfId;
     }
 }

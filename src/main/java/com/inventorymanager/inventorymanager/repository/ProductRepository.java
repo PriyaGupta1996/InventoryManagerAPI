@@ -9,7 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-
-    @Query("SELECT p FROM Product p JOIN FETCH p.vendor JOIN FETCH p.shelves")
-    List<Product> findAllProductsWithVendorAndShelves();
+//    @Query("SELECT p FROM Product p JOIN FETCH p.vendorId JOIN FETCH p.shelfId")
+//    List<Product> findAllProductsWithVendorAndShelf();
 }
