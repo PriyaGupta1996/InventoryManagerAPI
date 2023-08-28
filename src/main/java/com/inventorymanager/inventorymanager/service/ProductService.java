@@ -84,4 +84,13 @@ public class ProductService {
     }
 
 
+
+    public List<String> getAllCategories() {
+        List<String> uniqueCategories = productRepository.findAll()
+                .stream()
+                .map(Product::getCategory)
+                .distinct()
+                .collect(Collectors.toList());
+        return uniqueCategories;
+    }
 }

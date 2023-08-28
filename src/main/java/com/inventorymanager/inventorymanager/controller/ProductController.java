@@ -30,4 +30,9 @@ public class ProductController {
     ) {
         return productService.getFilteredData(category, product,vendorId,minPrice,maxPrice);
     }
+
+    @GetMapping("/categories")
+    public List<String> getAllCategories() {
+        return productService.getAllCategories();
+    }
 }
