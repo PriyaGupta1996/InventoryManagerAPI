@@ -51,7 +51,7 @@ public class DataSeeder implements CommandLineRunner {
         vendorRepository.saveAll(vendors);
 
         for(int i=0;i<10;i++){
-            Shelf shelf = new Shelf(new Random().nextInt(10), i,false,10);
+            Shelf shelf = new Shelf((new Random().nextInt(50) + 1), (new Random().nextInt(50) + 1),false,10);
             shelves.add(shelf);
         }
         shelfRepository.saveAll(shelves);

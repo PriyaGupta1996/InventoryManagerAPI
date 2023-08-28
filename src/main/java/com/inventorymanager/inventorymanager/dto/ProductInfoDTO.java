@@ -10,6 +10,8 @@ public class ProductInfoDTO {
     private Double pricePerUnit;
     private int shelfNumber;
     private int maxCapacity;
+    private int stock;
+    private String vendorLink;
 
     public ProductInfoDTO(String sku, String category, String productName, Double pricePerUnit, int shelfNumber, int maxCapacity, int stock, String vendorLink) {
         this.sku = sku;
@@ -22,8 +24,6 @@ public class ProductInfoDTO {
         this.vendorLink = vendorLink;
     }
 
-    private int stock;
-    private String vendorLink;
 
     // Constructors, getters, and setters
 }
