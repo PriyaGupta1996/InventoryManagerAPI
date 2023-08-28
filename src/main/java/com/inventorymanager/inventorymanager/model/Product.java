@@ -19,6 +19,7 @@ public class Product {
     @OneToOne
     @JoinColumn(name="shelf_id", referencedColumnName = "id")
     private Shelf shelfId;
+    @Column(unique = true)
     private String name;
     private String sku;
 

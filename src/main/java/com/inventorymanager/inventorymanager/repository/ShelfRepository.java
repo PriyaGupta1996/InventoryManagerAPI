@@ -8,4 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ShelfRepository extends JpaRepository<Shelf, Long> {
+    Shelf findByShelfNumber(int shelfNumber);
 }

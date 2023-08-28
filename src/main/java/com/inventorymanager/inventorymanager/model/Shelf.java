@@ -14,7 +14,7 @@ public class Shelf {
     @Id
     private Long id;
     private int quantity;
-    @Column(name="shelf_number")
+    @Column(name="shelf_number",unique = true)
     private int shelfNumber;
     @Column(name="is_prime")
     private boolean isPrime;

@@ -102,7 +102,7 @@ public class ProductService {
     }
 
     private String generateSKU(String productName, String category) {
-        return "sku_" + productName.toLowerCase() + "_" + category.toLowerCase();
+        return "sku_" + String.join("_",productName.toLowerCase().split(" "))+ "_" + String.join("_",category.toLowerCase().split(" "));
     }
 
     public void addProduct(ProductInfoDTO productInfoDTO) {
@@ -110,12 +110,29 @@ public class ProductService {
         Shelf shelf= new Shelf(productInfoDTO.getQuantity(), productInfoDTO.getShelfNumber(), productInfoDTO.isPrime(), productInfoDTO.getMaxCapacity());
         shelfRepository.save(shelf);
         Product product = new Product();
-        product.setName(productInfoDTO.getProductName());
-        product.setCategory(productInfoDTO.getCategory());
+        setProductDetails(productInfoDTO, vendor, shelf, product);
+    }
+
+    public void updateProduct(Long id, ProductInfoDTO productInfoDTO) {
+        Product product = productRepository.getReferenceById(id);
+        Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendorId());
+        Shelf shelf= product.getShelfId();
+        shelf.setShelfNumber(productInfoDTO.getShelfNumber());
+        shelf.setPrime(productInfoDTO.isPrime());
+        shelf.setQuantity(productInfoDTO.getQuantity());
+        shelf.setMaxCapacity(productInfoDTO.getMaxCapacity());
+        shelfRepository.save(shelf);
+        setProductDetails(productInfoDTO, vendor, shelf, product);
+
+    }
+
+    private void setProductDetails(ProductInfoDTO productInfoDTO, Vendor vendor, Shelf shelf, Product product) {
+        product.setName(productInfoDTO.getProductName().toLowerCase());
+        product.setCategory(productInfoDTO.getCategory().toLowerCase());
         product.setVendorId(vendor);
         product.setShelfId(shelf);
         product.setPricePerUnit(productInfoDTO.getPricePerUnit());
-        product.setSku(generateSKU(productInfoDTO.getProductName(),productInfoDTO.getCategory()));
+        product.setSku(generateSKU(productInfoDTO.getProductName(),productInfoDTO.getCategory()).toLowerCase());
         productRepository.save(product);
     }
 }

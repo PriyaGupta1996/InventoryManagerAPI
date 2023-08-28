@@ -30,7 +30,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private String generateSKU(String productName, String category) {
-        return "sku_" + productName.toLowerCase() + "_" + category.toLowerCase();
+        return "sku_" + String.join("_",productName.toLowerCase().split(" "))+ "_" + String.join("_",category.toLowerCase().split(" "));
     }
 
     private Double generateRandomPrice() {
@@ -45,13 +45,14 @@ public class DataSeeder implements CommandLineRunner {
 
         // Seed vendors
         for (int i = 0; i < 10; i++) {
-            Vendor vendor = new Vendor("Vendor " + i,"https://m.alibaba.com/?tab=all&InAS=y");
+            String vendorName= "Vendor " +i;
+            Vendor vendor = new Vendor(vendorName.toLowerCase(),"https://m.alibaba.com/?tab=all&InAS=y");
             vendors.add(vendor);
         }
         vendorRepository.saveAll(vendors);
 
         for(int i=0;i<10;i++){
-            Shelf shelf = new Shelf((new Random().nextInt(50) + 1), (new Random().nextInt(50) + 1),false,10);
+            Shelf shelf = new Shelf((new Random().nextInt(50) + 1), i,false,10);
             shelves.add(shelf);
         }
         shelfRepository.saveAll(shelves);
@@ -61,7 +62,7 @@ public class DataSeeder implements CommandLineRunner {
         for (int i = 0; i < 10; i++) {
             String productName = "Product " + i;
             String category = "Category " + i;
-            Product product = new Product(vendors.get(i),productName, generateSKU(productName, category), generateRandomPrice(), category,shelves.get(i));
+            Product product = new Product(vendors.get(i),productName.toLowerCase(), generateSKU(productName, category).toLowerCase(), generateRandomPrice(), category.toLowerCase(),shelves.get(i));
             products.add(product);
         }
         productRepository.saveAll(products);
