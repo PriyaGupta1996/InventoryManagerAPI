@@ -3,10 +3,9 @@ package com.inventorymanager.inventorymanager.controller;
 import com.inventorymanager.inventorymanager.dto.ProductInfoDTO;
 import com.inventorymanager.inventorymanager.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,4 +34,11 @@ public class ProductController {
     public List<String> getAllCategories() {
         return productService.getAllCategories();
     }
+
+    @PostMapping
+    public ResponseEntity<String> addProduct(@RequestBody ProductInfoDTO productInfoDTO ){
+        productService.addProduct(productInfoDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully");
+    }
+
 }

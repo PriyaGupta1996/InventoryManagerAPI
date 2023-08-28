@@ -6,13 +6,13 @@ import lombok.Data;
 public class ShelfInfoDTO {
     private int shelfNumber;
     private int maxCapacity;
-    private int stock;
+    private int quantity;
     private boolean isPrime;
 
-    public ShelfInfoDTO(int shelfNumber, int maxCapacity, int stock, boolean isPrime) {
+    public ShelfInfoDTO(int shelfNumber, int maxCapacity, int quantity, boolean isPrime) {
         this.shelfNumber = shelfNumber;
         this.maxCapacity = maxCapacity;
-        this.stock = stock;
+        this.quantity = quantity;
         this.isPrime = isPrime;
     }
 }

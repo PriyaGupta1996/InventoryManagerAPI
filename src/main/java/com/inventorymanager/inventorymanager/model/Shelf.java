@@ -13,7 +13,7 @@ public class Shelf {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     private Long id;
-    private int stock;
+    private int quantity;
     @Column(name="shelf_number")
     private int shelfNumber;
     @Column(name="is_prime")
@@ -24,8 +24,8 @@ public class Shelf {
 
     public Shelf() {}
 
-    public Shelf(int stock, int shelfNumber, boolean isPrime, int maxCapacity) {
-        this.stock = stock;
+    public Shelf(int quantity, int shelfNumber, boolean isPrime, int maxCapacity) {
+        this.quantity = quantity;
         this.shelfNumber = shelfNumber;
         this.isPrime = isPrime;
         this.maxCapacity = maxCapacity;

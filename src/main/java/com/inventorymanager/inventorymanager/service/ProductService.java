@@ -2,8 +2,10 @@ package com.inventorymanager.inventorymanager.service;
 
 import com.inventorymanager.inventorymanager.dto.ProductInfoDTO;
 import com.inventorymanager.inventorymanager.model.Product;
+import com.inventorymanager.inventorymanager.model.Shelf;
 import com.inventorymanager.inventorymanager.model.Vendor;
 import com.inventorymanager.inventorymanager.repository.ProductRepository;
+import com.inventorymanager.inventorymanager.repository.ShelfRepository;
 import com.inventorymanager.inventorymanager.repository.VendorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +18,13 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final VendorRepository vendorRepository;
+    private final ShelfRepository shelfRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, VendorRepository vendorRepository) {
+    public ProductService(ProductRepository productRepository, VendorRepository vendorRepository,  ShelfRepository shelfRepository) {
         this.productRepository = productRepository;
         this.vendorRepository=vendorRepository;
+        this.shelfRepository = shelfRepository;
     }
 
     private ProductInfoDTO mapProductToProductInfoDTO(Product product) {
@@ -31,8 +35,11 @@ public class ProductService {
                 product.getPricePerUnit(),
                 product.getShelfId().getShelfNumber(),
                 product.getShelfId().getMaxCapacity(),
-                product.getShelfId().getStock(),
-                product.getVendorId().getLink());
+                product.getShelfId().getQuantity(),
+                product.getVendorId().getLink(),
+                product.getVendorId().getId(),
+                product.getShelfId().isPrime()
+        );
     }
 
     public List<ProductInfoDTO> getFilteredData(
@@ -92,5 +99,23 @@ public class ProductService {
                 .distinct()
                 .collect(Collectors.toList());
         return uniqueCategories;
+    }
+
+    private String generateSKU(String productName, String category) {
+        return "sku_" + productName.toLowerCase() + "_" + category.toLowerCase();
+    }
+
+    public void addProduct(ProductInfoDTO productInfoDTO) {
+        Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendorId());
+        Shelf shelf= new Shelf(productInfoDTO.getQuantity(), productInfoDTO.getShelfNumber(), productInfoDTO.isPrime(), productInfoDTO.getMaxCapacity());
+        shelfRepository.save(shelf);
+        Product product = new Product();
+        product.setName(productInfoDTO.getProductName());
+        product.setCategory(productInfoDTO.getCategory());
+        product.setVendorId(vendor);
+        product.setShelfId(shelf);
+        product.setPricePerUnit(productInfoDTO.getPricePerUnit());
+        product.setSku(generateSKU(productInfoDTO.getProductName(),productInfoDTO.getCategory()));
+        productRepository.save(product);
     }
 }
