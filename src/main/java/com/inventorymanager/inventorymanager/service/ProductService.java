@@ -135,4 +135,9 @@ public class ProductService {
         product.setSku(generateSKU(productInfoDTO.getProductName(),productInfoDTO.getCategory()).toLowerCase());
         productRepository.save(product);
     }
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        productRepository.delete(product);
+    }
 }

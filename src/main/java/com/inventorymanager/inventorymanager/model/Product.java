@@ -16,7 +16,7 @@ public class Product {
     @JoinColumn(name = "vendor_id", referencedColumnName = "id")
     private Vendor vendorId;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="shelf_id", referencedColumnName = "id")
     private Shelf shelfId;
     @Column(unique = true)
