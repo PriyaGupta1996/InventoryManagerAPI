@@ -21,10 +21,6 @@ public class Shelf {
     @Column(name="max_capacity")
     private int maxCapacity;
 
-//    @OneToOne
-//    @JoinColumn(name = "product_id", referencedColumnName = "id")
-//    @OnDelete(action = OnDeleteAction.CASCADE)
-//    private Product productId;
 
     public Shelf() {}
 

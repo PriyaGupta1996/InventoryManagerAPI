@@ -33,9 +33,8 @@ public class DataSeeder implements CommandLineRunner {
         return "sku_" + productName.toLowerCase() + "_" + category.toLowerCase();
     }
 
-    private String generateRandomPrice() {
-        return "Rs "+String.format("%.2f", 50 + new Random().nextDouble() * 450);
-
+    private Double generateRandomPrice() {
+        return Double.valueOf(String.format("%.2f", 50 + new Random().nextDouble() * 450));
     }
 
     @Override

@@ -23,12 +23,12 @@ public class Product {
     private String sku;
 
     @Column(name="price_per_unit")
-    private String pricePerUnit;
+    private Double pricePerUnit;
     private String category;
 
     public Product() {}
 
-    public Product(Vendor vendorId, String name, String sku, String pricePerUnit, String category,Shelf shelfId) {
+    public Product(Vendor vendorId, String name, String sku, Double pricePerUnit, String category,Shelf shelfId) {
         this.vendorId = vendorId;
         this.name = name;
         this.sku = sku;
