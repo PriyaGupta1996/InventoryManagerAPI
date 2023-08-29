@@ -14,8 +14,9 @@ public class ProductInfoDTO {
     private String vendorLink;
     private Long vendorId;
     private boolean isPrime;
+    private String vendorName;
 
-    public ProductInfoDTO(String sku, String category, String productName, Double pricePerUnit, int shelfNumber, int maxCapacity, int quantity, String vendorLink,Long vendorId, boolean isPrime) {
+    public ProductInfoDTO(String sku, String category, String productName, Double pricePerUnit, int shelfNumber, int maxCapacity, int quantity, String vendorLink,Long vendorId, boolean isPrime,String vendorName) {
         this.sku = sku;
         this.category = category;
         this.productName = productName;
@@ -26,6 +27,7 @@ public class ProductInfoDTO {
         this.vendorLink = vendorLink;
         this.vendorId=vendorId;
         this.isPrime=isPrime;
+        this.vendorName=vendorName;
     }
 
 

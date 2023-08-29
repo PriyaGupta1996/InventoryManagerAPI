@@ -38,7 +38,8 @@ public class ProductService {
                 product.getShelfId().getQuantity(),
                 product.getVendorId().getLink(),
                 product.getVendorId().getId(),
-                product.getShelfId().isPrime()
+                product.getShelfId().isPrime(),
+                product.getVendorId().getName()
         );
     }
 
