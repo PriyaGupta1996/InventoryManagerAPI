@@ -11,12 +11,32 @@ public class ProductInfoDTO {
     private int shelfNumber;
     private int maxCapacity;
     private int quantity;
-    private String vendorLink;
-    private Long vendorId;
+    private Long productId;
     private boolean isPrime;
-    private String vendorName;
 
-    public ProductInfoDTO(String sku, String category, String productName, Double pricePerUnit, int shelfNumber, int maxCapacity, int quantity, String vendorLink,Long vendorId, boolean isPrime,String vendorName) {
+    private VendorDetails vendor; // Grouped vendor details
+
+    @Data
+    public static class VendorDetails {
+        private Long id;
+        private String name;
+        private String link;
+    }
+
+    public ProductInfoDTO(
+            String sku,
+            String category,
+            String productName,
+            Double pricePerUnit,
+            int shelfNumber,
+            int maxCapacity,
+            int quantity,
+            Long vendorId,
+            String vendorName,
+            String vendorLink,
+            Long productId,
+            boolean isPrime
+    ) {
         this.sku = sku;
         this.category = category;
         this.productName = productName;
@@ -24,12 +44,18 @@ public class ProductInfoDTO {
         this.shelfNumber = shelfNumber;
         this.maxCapacity = maxCapacity;
         this.quantity = quantity;
-        this.vendorLink = vendorLink;
-        this.vendorId=vendorId;
-        this.isPrime=isPrime;
-        this.vendorName=vendorName;
+
+        VendorDetails vendorDetails = new VendorDetails();
+        vendorDetails.id = vendorId;
+        vendorDetails.name = vendorName;
+        vendorDetails.link = vendorLink;
+
+        this.vendor = vendorDetails;
+        this.productId = productId;
+        this.isPrime = isPrime;
     }
 
+    // Constructors, getters, setters, and other methods
 
-    // Constructors, getters, and setters
+
 }

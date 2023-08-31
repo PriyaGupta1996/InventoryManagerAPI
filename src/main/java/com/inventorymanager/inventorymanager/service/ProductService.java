@@ -36,12 +36,14 @@ public class ProductService {
                 product.getShelfId().getShelfNumber(),
                 product.getShelfId().getMaxCapacity(),
                 product.getShelfId().getQuantity(),
-                product.getVendorId().getLink(),
                 product.getVendorId().getId(),
-                product.getShelfId().isPrime(),
-                product.getVendorId().getName()
+                product.getVendorId().getName(),
+                product.getVendorId().getLink(),
+                product.getId(),
+                product.getShelfId().isPrime()
         );
     }
+
 
     public List<ProductInfoDTO> getFilteredData(
             String category, String partialProductName, Long vendorId, Double minPrice, Double maxPrice
@@ -107,7 +109,7 @@ public class ProductService {
     }
 
     public void addProduct(ProductInfoDTO productInfoDTO) {
-        Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendorId());
+        Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendor().getId());
         Shelf shelf= new Shelf(productInfoDTO.getQuantity(), productInfoDTO.getShelfNumber(), productInfoDTO.isPrime(), productInfoDTO.getMaxCapacity());
         shelfRepository.save(shelf);
         Product product = new Product();
@@ -116,7 +118,7 @@ public class ProductService {
 
     public void updateProduct(Long id, ProductInfoDTO productInfoDTO) {
         Product product = productRepository.getReferenceById(id);
-        Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendorId());
+        Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendor().getId());
         Shelf shelf= product.getShelfId();
         shelf.setShelfNumber(productInfoDTO.getShelfNumber());
         shelf.setPrime(productInfoDTO.isPrime());
