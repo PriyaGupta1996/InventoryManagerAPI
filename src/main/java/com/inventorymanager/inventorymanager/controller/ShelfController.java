@@ -1,6 +1,5 @@
 package com.inventorymanager.inventorymanager.controller;
 
-import com.inventorymanager.inventorymanager.model.Shelf;
 import com.inventorymanager.inventorymanager.service.ShelfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
