@@ -21,7 +21,7 @@ public class ProductInfoDTO {
     private String productName;
 
     @Min(value = 1, message = "Price Per Unit must be greater than or equal to 1")
-    @Max(value = 10, message = "Price Per Unit must be less than or equal to 1000000")
+    @Max(value = 1000000, message = "Price Per Unit must be less than or equal to 1000000")
     @NotNull(message="Price Per Unit is required")
     private Double pricePerUnit;
 
