@@ -1,10 +1,6 @@
 package com.craftdemo.inventorymanager.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -27,24 +23,14 @@ public class Product {
     @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="shelf", referencedColumnName = "id")
     private Shelf shelf;
-
     @Column(unique = true)
-    @NotNull
-    @Size(min=1, max=200)
+
     private String name;
 
-    @NotNull
-    @Size(min=1, max=200)
     private String sku;
 
     @Column(name="price_per_unit")
-    @NotNull
-    @Min(value = 0)
-    @Max(value = 1000000)
     private Double pricePerUnit;
-
-    @NotNull
-    @Size(min=1, max=200)
     private String category;
 
     @CreationTimestamp

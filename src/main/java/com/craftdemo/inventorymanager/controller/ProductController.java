@@ -3,10 +3,12 @@ package com.craftdemo.inventorymanager.controller;
 import com.craftdemo.inventorymanager.dto.ProductFilterCriteria;
 import com.craftdemo.inventorymanager.dto.ProductInfoDTO;
 import com.craftdemo.inventorymanager.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +25,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public Page<ProductInfoDTO> getFilteredProducts(@ModelAttribute ProductFilterCriteria criteria,
+    public Page<ProductInfoDTO> getFilteredProducts(@Valid @ModelAttribute ProductFilterCriteria criteria,
                                                     @RequestParam(defaultValue = "0") int page,
                                                     @RequestParam(defaultValue = "5") int size,
                                                     @RequestParam(defaultValue = "shelf.isPrime") String orderBy,
@@ -31,20 +33,20 @@ public class ProductController {
         return productService.getFilteredData( criteria, orderBy,  sortOrder,  page,  size);
     }
     @PostMapping
-    public ResponseEntity<String> addProduct(@RequestBody ProductInfoDTO productInfoDTO ){
+    public ResponseEntity<String> addProduct(@Valid @RequestBody ProductInfoDTO productInfoDTO ){
         productService.addProduct(productInfoDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateProduct(@PathVariable Long id, @RequestBody ProductInfoDTO productInfoDTO) {
+    public ResponseEntity<String> updateProduct(@Valid @PathVariable Long id, @Valid @RequestBody ProductInfoDTO productInfoDTO) {
         productService.updateProduct(id, productInfoDTO);
         return ResponseEntity.status(HttpStatus.OK).body("Product updated successfully");
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteProduct(@Valid @PathVariable("id") Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok("Product deleted successfully");
     }

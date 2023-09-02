@@ -23,6 +23,8 @@ public class Shelf {
     private int quantity;
 
     @Column(name="shelf_number",unique = true)
+    @Min(value = 1, message = "Shelf number must be greater than or equal to 1")
+    @Max(value = 50, message = "Shelf number must be less than or equal to 50")
     private int shelfNumber;
 
     @Column(name="is_prime")
