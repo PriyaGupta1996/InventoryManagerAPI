@@ -26,15 +26,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByPricePerUnitBetween(Double minPrice, Double maxPrice);
 
-    List<Product> findByCategoryAndNameContainingAndVendorIdAndPricePerUnitBetween(String category, String partialProductName, Vendor vendor, Double minPrice, Double maxPrice);
+    List<Product> findByCategoryAndNameContainingAndVendorAndPricePerUnitBetween(String category, String partialProductName, Vendor vendor, Double minPrice, Double maxPrice);
 
-    List<Product> findByCategoryAndNameContainingAndVendorId(String category, String partialProductName, Vendor vendor);
+    List<Product> findByCategoryAndNameContainingAndVendor(String category, String partialProductName, Vendor vendor);
 
-    List<Product> findByNameContainingAndVendorIdAndPricePerUnitBetween(String partialProductName, Vendor vendor, Double minPrice, Double maxPrice);
+    List<Product> findByNameContainingAndVendorAndPricePerUnitBetween(String partialProductName, Vendor vendor, Double minPrice, Double maxPrice);
 
-    List<Product> findByNameContainingAndVendorId(String partialProductName, Vendor vendor);
+    List<Product> findByNameContainingAndVendor(String partialProductName, Vendor vendor);
 
-    List<Product> findByVendorIdAndPricePerUnitBetween(Vendor vendor, Double minPrice, Double maxPrice);
+    List<Product> findByVendorAndPricePerUnitBetween(Vendor vendor, Double minPrice, Double maxPrice);
 
-    List<Product> findByVendorId(Vendor vendorReference);
+    List<Product> findByVendor(Vendor vendorReference);
 }

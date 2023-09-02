@@ -32,14 +32,14 @@ public class ProductServiceImpl implements ProductService{
                 product.getCategory(),
                 product.getName(),
                 product.getPricePerUnit(),
-                product.getShelfId().getShelfNumber(),
-                product.getShelfId().getMaxCapacity(),
-                product.getShelfId().getQuantity(),
-                product.getVendorId().getId(),
-                product.getVendorId().getName(),
-                product.getVendorId().getLink(),
+                product.getShelf().getShelfNumber(),
+                product.getShelf().getMaxCapacity(),
+                product.getShelf().getQuantity(),
+                product.getVendor().getId(),
+                product.getVendor().getName(),
+                product.getVendor().getLink(),
                 product.getId(),
-                product.getShelfId().isPrime()
+                product.getShelf().isPrime()
         );
     }
 
@@ -52,8 +52,8 @@ public class ProductServiceImpl implements ProductService{
     private void setProductDetails(ProductInfoDTO productInfoDTO, Vendor vendor, Shelf shelf, Product product) {
         product.setName(productInfoDTO.getProductName().toLowerCase());
         product.setCategory(productInfoDTO.getCategory().toLowerCase());
-        product.setVendorId(vendor);
-        product.setShelfId(shelf);
+        product.setVendor(vendor);
+        product.setShelf(shelf);
         product.setPricePerUnit(productInfoDTO.getPricePerUnit());
         product.setSku(generateSKU(productInfoDTO.getProductName(),productInfoDTO.getCategory()).toLowerCase());
         productRepository.save(product);
@@ -67,30 +67,27 @@ public class ProductServiceImpl implements ProductService{
         List<Product> products;
         Vendor vendorReference=null;
         if(vendorId!=null){
-            System.out.println("I am inside"+vendorId);
             vendorReference  =vendorRepository.getReferenceById(vendorId);
-            System.out.println(vendorReference);
         }
 
-
         if (category != null && partialProductName != null && vendorId != null && minPrice != null && maxPrice != null) {
-            products = productRepository.findByCategoryAndNameContainingAndVendorIdAndPricePerUnitBetween(
+            products = productRepository.findByCategoryAndNameContainingAndVendorAndPricePerUnitBetween(
                     category, partialProductName, vendorReference, minPrice, maxPrice
             );
         } else if (category != null && partialProductName != null && vendorId != null) {
-            products = productRepository.findByCategoryAndNameContainingAndVendorId(category, partialProductName, vendorReference);
+            products = productRepository.findByCategoryAndNameContainingAndVendor(category, partialProductName, vendorReference);
         } else if (category != null && partialProductName != null) {
             products = productRepository.findByCategoryAndNameContaining(category, partialProductName);
         } else if (category != null && minPrice != null && maxPrice != null) {
             products = productRepository.findByCategoryAndPricePerUnitBetween(category, minPrice, maxPrice);
         } else if (partialProductName != null && vendorId != null && minPrice != null && maxPrice != null) {
-            products = productRepository.findByNameContainingAndVendorIdAndPricePerUnitBetween(
+            products = productRepository.findByNameContainingAndVendorAndPricePerUnitBetween(
                     partialProductName, vendorReference, minPrice, maxPrice
             );
         } else if (partialProductName != null && vendorId != null) {
-            products = productRepository.findByNameContainingAndVendorId(partialProductName, vendorReference);
+            products = productRepository.findByNameContainingAndVendor(partialProductName, vendorReference);
         } else if (vendorId != null && minPrice != null && maxPrice != null) {
-            products = productRepository.findByVendorIdAndPricePerUnitBetween(vendorReference, minPrice, maxPrice);
+            products = productRepository.findByVendorAndPricePerUnitBetween(vendorReference, minPrice, maxPrice);
         } else if (category != null) {
             products = productRepository.findByCategory(category);
         } else if (partialProductName != null) {
@@ -99,7 +96,7 @@ public class ProductServiceImpl implements ProductService{
             products = productRepository.findByPricePerUnitBetween(minPrice, maxPrice);
         }
         else if (vendorId!=null) {
-            products = productRepository.findByVendorId(vendorReference);
+            products = productRepository.findByVendor(vendorReference);
         }else {
             products = productRepository.findAll();
         }
@@ -131,7 +128,7 @@ public class ProductServiceImpl implements ProductService{
     public void updateProduct(Long id, ProductInfoDTO productInfoDTO) {
         Product product = productRepository.getReferenceById(id);
         Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendor().getId());
-        Shelf shelf= product.getShelfId();
+        Shelf shelf= product.getShelf();
         shelf.setShelfNumber(productInfoDTO.getShelfNumber());
         shelf.setPrime(productInfoDTO.isPrime());
         shelf.setQuantity(productInfoDTO.getQuantity());

@@ -14,11 +14,11 @@ public class Product {
 
     @ManyToOne()
     @JoinColumn(name = "vendor_id", referencedColumnName = "id")
-    private Vendor vendorId;
+    private Vendor vendor;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="shelf_id", referencedColumnName = "id")
-    private Shelf shelfId;
+    private Shelf shelf;
     @Column(unique = true)
     private String name;
     private String sku;
@@ -29,12 +29,12 @@ public class Product {
 
     public Product() {}
 
-    public Product(Vendor vendorId, String name, String sku, Double pricePerUnit, String category,Shelf shelfId) {
-        this.vendorId = vendorId;
+    public Product(Vendor vendor, String name, String sku, Double pricePerUnit, String category,Shelf shelf) {
+        this.vendor = vendor;
         this.name = name;
         this.sku = sku;
         this.pricePerUnit = pricePerUnit;
         this.category = category;
-        this.shelfId=shelfId;
+        this.shelf=shelf;
     }
 }
