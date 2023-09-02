@@ -13,6 +13,10 @@ import com.inventorymanager.inventorymanager.repository.ProductRepository;
 import com.inventorymanager.inventorymanager.repository.ShelfRepository;
 import com.inventorymanager.inventorymanager.repository.VendorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,7 +55,8 @@ public class ProductServiceImpl implements ProductService{
         );
     }
     @Override
-    public List<ProductInfoDTO> getFilteredData(ProductFilterCriteria criteria) {
+    public Page<ProductInfoDTO> getFilteredData(
+            ProductFilterCriteria criteria, String orderBy, String sortOrder, int page, int size) {
         AtomicReference<Specification<Product>> spec = new AtomicReference<>(Specification.where(null));
 
         criteria.getCategory().ifPresent(category -> spec.updateAndGet(currentSpec -> currentSpec.and(new CategoryFilter(category))));
@@ -64,16 +69,14 @@ public class ProductServiceImpl implements ProductService{
         double minPrice = criteria.getMinPrice().orElse(Double.MIN_VALUE);
         double maxPrice = criteria.getMaxPrice().orElse(Double.MAX_VALUE);
         spec.updateAndGet(currentSpec -> currentSpec.and(new PriceRangeFilter(minPrice, maxPrice)));
-
-        List<Product> products = productRepository.findAll(spec.get());
-
-        if (products.isEmpty()) {
+        Sort.Direction direction = sortOrder.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, orderBy); // Create a Sort object based on the orderBy parameter
+        Pageable pageable = PageRequest.of(page, size, sort); // Create a Pageable object for pagination
+        Page<Product> productPage = productRepository.findAll(spec.get(), pageable);
+        if (productPage.isEmpty()) {
             System.out.println("No products found for the given criteria.");
         }
-
-        return products.stream()
-                .map(this::mapProductToProductInfoDTO)
-                .collect(Collectors.toList());
+        return productPage.map(this::mapProductToProductInfoDTO);
     }
 
     private String generateSKU(String productName, String category) {

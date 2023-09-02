@@ -4,6 +4,7 @@ import com.inventorymanager.inventorymanager.dto.ProductFilterCriteria;
 import com.inventorymanager.inventorymanager.dto.ProductInfoDTO;
 import com.inventorymanager.inventorymanager.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +23,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductInfoDTO> getFilteredProducts(@ModelAttribute ProductFilterCriteria criteria) {
-        return productService.getFilteredData(criteria);
+    public Page<ProductInfoDTO> getFilteredProducts(@ModelAttribute ProductFilterCriteria criteria,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int size,
+                                                    @RequestParam(defaultValue = "name") String orderBy,
+                                                     @RequestParam(defaultValue = "asc") String sortOrder){
+        return productService.getFilteredData( criteria, orderBy,  sortOrder,  page,  size);
     }
 
     @GetMapping("/categories")
