@@ -1,5 +1,6 @@
 package com.inventorymanager.inventorymanager.controller;
 
+import com.inventorymanager.inventorymanager.dto.ProductFilterCriteria;
 import com.inventorymanager.inventorymanager.dto.ProductInfoDTO;
 import com.inventorymanager.inventorymanager.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +22,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductInfoDTO> getProductsByCategoryAndName(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String product,
-            @RequestParam(required = false) Long vendorId,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
-    ) {
-        return productService.getFilteredData(category, product,vendorId,minPrice,maxPrice);
+    public List<ProductInfoDTO> getFilteredProducts(@ModelAttribute ProductFilterCriteria criteria) {
+        return productService.getFilteredData(criteria);
     }
 
     @GetMapping("/categories")

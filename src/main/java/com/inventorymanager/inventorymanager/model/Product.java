@@ -13,11 +13,11 @@ public class Product {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn(name = "vendor_id", referencedColumnName = "id")
+    @JoinColumn(name = "vendor", referencedColumnName = "id")
     private Vendor vendor;
 
     @OneToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name="shelf_id", referencedColumnName = "id")
+    @JoinColumn(name="shelf", referencedColumnName = "id")
     private Shelf shelf;
     @Column(unique = true)
     private String name;

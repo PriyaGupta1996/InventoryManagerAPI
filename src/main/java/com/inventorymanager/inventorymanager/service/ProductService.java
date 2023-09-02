@@ -1,13 +1,12 @@
 package com.inventorymanager.inventorymanager.service;
 
+import com.inventorymanager.inventorymanager.dto.ProductFilterCriteria;
 import com.inventorymanager.inventorymanager.dto.ProductInfoDTO;
 
 import java.util.List;
 
 public interface ProductService {
-     List<ProductInfoDTO> getFilteredData(
-            String category, String partialProductName, Long vendorId, Double minPrice, Double maxPrice
-    );
+     List<ProductInfoDTO> getFilteredData(ProductFilterCriteria criteria);
 
      List<String> getAllCategories();
      void addProduct(ProductInfoDTO productInfoDTO) ;

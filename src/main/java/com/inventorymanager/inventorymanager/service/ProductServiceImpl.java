@@ -1,6 +1,11 @@
 package com.inventorymanager.inventorymanager.service;
 
+import com.inventorymanager.inventorymanager.dto.ProductFilterCriteria;
 import com.inventorymanager.inventorymanager.dto.ProductInfoDTO;
+import com.inventorymanager.inventorymanager.filter.CategoryFilter;
+import com.inventorymanager.inventorymanager.filter.PriceRangeFilter;
+import com.inventorymanager.inventorymanager.filter.ProductFilter;
+import com.inventorymanager.inventorymanager.filter.VendorFilter;
 import com.inventorymanager.inventorymanager.model.Product;
 import com.inventorymanager.inventorymanager.model.Shelf;
 import com.inventorymanager.inventorymanager.model.Vendor;
@@ -8,7 +13,10 @@ import com.inventorymanager.inventorymanager.repository.ProductRepository;
 import com.inventorymanager.inventorymanager.repository.ShelfRepository;
 import com.inventorymanager.inventorymanager.repository.VendorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.atomic.AtomicReference;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +50,31 @@ public class ProductServiceImpl implements ProductService{
                 product.getShelf().isPrime()
         );
     }
+    @Override
+    public List<ProductInfoDTO> getFilteredData(ProductFilterCriteria criteria) {
+        AtomicReference<Specification<Product>> spec = new AtomicReference<>(Specification.where(null));
 
+        criteria.getCategory().ifPresent(category -> spec.updateAndGet(currentSpec -> currentSpec.and(new CategoryFilter(category))));
+        criteria.getPartialProductName().ifPresent(name -> spec.updateAndGet(currentSpec -> currentSpec.and(new ProductFilter(name))));
+        criteria.getVendorId().ifPresent(vendorId -> {
+            Vendor vendor = new Vendor(); // Create a Vendor object with the provided ID
+            vendor.setId(vendorId);
+            spec.updateAndGet(currentSpec -> currentSpec.and(new VendorFilter(vendor)));
+        });
+        double minPrice = criteria.getMinPrice().orElse(Double.MIN_VALUE);
+        double maxPrice = criteria.getMaxPrice().orElse(Double.MAX_VALUE);
+        spec.updateAndGet(currentSpec -> currentSpec.and(new PriceRangeFilter(minPrice, maxPrice)));
+
+        List<Product> products = productRepository.findAll(spec.get());
+
+        if (products.isEmpty()) {
+            System.out.println("No products found for the given criteria.");
+        }
+
+        return products.stream()
+                .map(this::mapProductToProductInfoDTO)
+                .collect(Collectors.toList());
+    }
 
     private String generateSKU(String productName, String category) {
         return "sku_" + String.join("_",productName.toLowerCase().split(" "))+ "_" + String.join("_",category.toLowerCase().split(" "));
@@ -60,51 +92,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
 
-    @Override
-    public List<ProductInfoDTO> getFilteredData(
-            String category, String partialProductName, Long vendorId, Double minPrice, Double maxPrice
-    ) {
-        List<Product> products;
-        Vendor vendorReference=null;
-        if(vendorId!=null){
-            vendorReference  =vendorRepository.getReferenceById(vendorId);
-        }
 
-        if (category != null && partialProductName != null && vendorId != null && minPrice != null && maxPrice != null) {
-            products = productRepository.findByCategoryAndNameContainingAndVendorAndPricePerUnitBetween(
-                    category, partialProductName, vendorReference, minPrice, maxPrice
-            );
-        } else if (category != null && partialProductName != null && vendorId != null) {
-            products = productRepository.findByCategoryAndNameContainingAndVendor(category, partialProductName, vendorReference);
-        } else if (category != null && partialProductName != null) {
-            products = productRepository.findByCategoryAndNameContaining(category, partialProductName);
-        } else if (category != null && minPrice != null && maxPrice != null) {
-            products = productRepository.findByCategoryAndPricePerUnitBetween(category, minPrice, maxPrice);
-        } else if (partialProductName != null && vendorId != null && minPrice != null && maxPrice != null) {
-            products = productRepository.findByNameContainingAndVendorAndPricePerUnitBetween(
-                    partialProductName, vendorReference, minPrice, maxPrice
-            );
-        } else if (partialProductName != null && vendorId != null) {
-            products = productRepository.findByNameContainingAndVendor(partialProductName, vendorReference);
-        } else if (vendorId != null && minPrice != null && maxPrice != null) {
-            products = productRepository.findByVendorAndPricePerUnitBetween(vendorReference, minPrice, maxPrice);
-        } else if (category != null) {
-            products = productRepository.findByCategory(category);
-        } else if (partialProductName != null) {
-            products = productRepository.findByNameContaining(partialProductName);
-        } else if (minPrice != null && maxPrice != null) {
-            products = productRepository.findByPricePerUnitBetween(minPrice, maxPrice);
-        }
-        else if (vendorId!=null) {
-            products = productRepository.findByVendor(vendorReference);
-        }else {
-            products = productRepository.findAll();
-        }
-
-        return products.stream()
-                .map(this::mapProductToProductInfoDTO)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public List<String> getAllCategories() {
