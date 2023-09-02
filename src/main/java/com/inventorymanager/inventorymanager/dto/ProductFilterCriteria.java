@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ProductFilterCriteria {
     private Optional<String> category = Optional.empty();
-    private Optional<String> partialProductName = Optional.empty();
+    private Optional<String> productName = Optional.empty();
     private Optional<Long> vendorId = Optional.empty();
     private Optional<Double> minPrice = Optional.empty();
     private Optional<Double> maxPrice = Optional.empty();

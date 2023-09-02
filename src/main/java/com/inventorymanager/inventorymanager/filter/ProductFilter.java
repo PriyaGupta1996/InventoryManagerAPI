@@ -12,6 +12,6 @@ public class ProductFilter implements Specification<Product> {
 
     @Override
     public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
-        return builder.like(root.get("productName"), "%" + productNamePattern + "%");
+        return builder.like(root.get("name"), "%" + productNamePattern + "%");
     }
 }

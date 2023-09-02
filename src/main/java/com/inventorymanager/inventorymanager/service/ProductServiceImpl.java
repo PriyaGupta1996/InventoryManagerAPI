@@ -60,7 +60,7 @@ public class ProductServiceImpl implements ProductService{
         AtomicReference<Specification<Product>> spec = new AtomicReference<>(Specification.where(null));
 
         criteria.getCategory().ifPresent(category -> spec.updateAndGet(currentSpec -> currentSpec.and(new CategoryFilter(category))));
-        criteria.getPartialProductName().ifPresent(name -> spec.updateAndGet(currentSpec -> currentSpec.and(new ProductFilter(name))));
+        criteria.getProductName().ifPresent(name -> spec.updateAndGet(currentSpec -> currentSpec.and(new ProductFilter(name))));
         criteria.getVendorId().ifPresent(vendorId -> {
             Vendor vendor = new Vendor(); // Create a Vendor object with the provided ID
             vendor.setId(vendorId);
@@ -83,7 +83,6 @@ public class ProductServiceImpl implements ProductService{
         return "sku_" + String.join("_",productName.toLowerCase().split(" "))+ "_" + String.join("_",category.toLowerCase().split(" "));
     }
 
-
     private void setProductDetails(ProductInfoDTO productInfoDTO, Vendor vendor, Shelf shelf, Product product) {
         product.setName(productInfoDTO.getProductName().toLowerCase());
         product.setCategory(productInfoDTO.getCategory().toLowerCase());
@@ -93,9 +92,6 @@ public class ProductServiceImpl implements ProductService{
         product.setSku(generateSKU(productInfoDTO.getProductName(),productInfoDTO.getCategory()).toLowerCase());
         productRepository.save(product);
     }
-
-
-
 
     @Override
     public List<String> getAllCategories() {

@@ -25,9 +25,9 @@ public class ProductController {
     @GetMapping
     public Page<ProductInfoDTO> getFilteredProducts(@ModelAttribute ProductFilterCriteria criteria,
                                                     @RequestParam(defaultValue = "0") int page,
-                                                    @RequestParam(defaultValue = "10") int size,
-                                                    @RequestParam(defaultValue = "name") String orderBy,
-                                                     @RequestParam(defaultValue = "asc") String sortOrder){
+                                                    @RequestParam(defaultValue = "5") int size,
+                                                    @RequestParam(defaultValue = "shelf.isPrime") String orderBy,
+                                                     @RequestParam(defaultValue = "dsc") String sortOrder){
         return productService.getFilteredData( criteria, orderBy,  sortOrder,  page,  size);
     }
 
@@ -48,11 +48,11 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body("Product updated successfully");
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable("id") Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
-
 
 }
