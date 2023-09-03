@@ -1,28 +1,31 @@
 package com.craftdemo.inventorymanager.exception;
+
+// Class to handle exception Globally
+
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(value = {ResourceNotFoundException.class, EntityNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public @ResponseBody ErrorResponse
+    handleResourceNotFoundException(Exception ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseBody
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        BindingResult bindingResult = ex.getBindingResult();
-        for (FieldError fieldError : bindingResult.getFieldErrors()) {
-            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    @ExceptionHandler(value = {BadRequestException.class, DataIntegrityViolationException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse
+    handleBadRequest(Exception ex)
+    {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 }

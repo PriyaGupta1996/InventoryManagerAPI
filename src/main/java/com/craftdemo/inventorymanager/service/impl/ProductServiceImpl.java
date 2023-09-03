@@ -1,7 +1,10 @@
 package com.craftdemo.inventorymanager.service.impl;
 
+import ch.qos.logback.classic.Logger;
 import com.craftdemo.inventorymanager.dto.ProductFilterCriteria;
 import com.craftdemo.inventorymanager.dto.ProductInfoDTO;
+import com.craftdemo.inventorymanager.exception.BadRequestException;
+import com.craftdemo.inventorymanager.exception.ResourceNotFoundException;
 import com.craftdemo.inventorymanager.filter.CategoryFilter;
 import com.craftdemo.inventorymanager.filter.PriceRangeFilter;
 import com.craftdemo.inventorymanager.filter.ProductFilter;
@@ -14,6 +17,7 @@ import com.craftdemo.inventorymanager.repository.ShelfRepository;
 import com.craftdemo.inventorymanager.repository.VendorRepository;
 import com.craftdemo.inventorymanager.service.ProductService;
 import jakarta.transaction.Transactional;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,15 +33,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
+    Logger logger = (Logger) LoggerFactory.getLogger(ProductServiceImpl.class);
     private final ProductRepository productRepository;
     private final VendorRepository vendorRepository;
     private final ShelfRepository shelfRepository;
 
+    private final ShelfServiceImpl shelfService;
+
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, VendorRepository vendorRepository, ShelfRepository shelfRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, VendorRepository vendorRepository, ShelfRepository shelfRepository,ShelfServiceImpl shelfService) {
         this.productRepository = productRepository;
         this.vendorRepository = vendorRepository;
         this.shelfRepository = shelfRepository;
+        this.shelfService=shelfService;
     }
 
     private ProductInfoDTO mapProductToProductInfoDTO(Product product) {
@@ -63,26 +71,29 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductInfoDTO> getFilteredData(
             ProductFilterCriteria criteria, String orderBy, String sortOrder, int page, int size) {
-        AtomicReference<Specification<Product>> spec = new AtomicReference<>(Specification.where(null));
 
-        criteria.getCategory().ifPresent(category -> spec.updateAndGet(currentSpec -> currentSpec.and(new CategoryFilter(category))));
-        criteria.getProductName().ifPresent(name -> spec.updateAndGet(currentSpec -> currentSpec.and(new ProductFilter(name))));
-        criteria.getVendorId().ifPresent(vendorId -> {
-            Vendor vendor = new Vendor(); // Create a Vendor object with the provided ID
-            vendor.setId(vendorId);
-            spec.updateAndGet(currentSpec -> currentSpec.and(new VendorFilter(vendor)));
-        });
-        double minPrice = criteria.getMinPrice().orElse(Double.MIN_VALUE);
-        double maxPrice = criteria.getMaxPrice().orElse(Double.MAX_VALUE);
-        spec.updateAndGet(currentSpec -> currentSpec.and(new PriceRangeFilter(minPrice, maxPrice)));
-        Sort.Direction direction = sortOrder.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, orderBy); // Create a Sort object based on the orderBy parameter
-        Pageable pageable = PageRequest.of(page, size, sort); // Create a Pageable object for pagination
-        Page<Product> productPage = productRepository.findAll(spec.get(), pageable);
-        if (productPage.isEmpty()) {
-            System.out.println("No products found for the given criteria.");
-        }
-        return productPage.map(this::mapProductToProductInfoDTO);
+            if(criteria.getMaxPrice().isPresent() && criteria.getMinPrice().isPresent() && criteria.getMaxPrice().get() < criteria.getMinPrice().get())
+                throw new BadRequestException("Min Price can not be smaller than max price");
+
+            AtomicReference<Specification<Product>> spec = new AtomicReference<>(Specification.where(null));
+            criteria.getCategory().ifPresent(category -> spec.updateAndGet(currentSpec -> currentSpec.and(new CategoryFilter(category))));
+            criteria.getProductName().ifPresent(name -> spec.updateAndGet(currentSpec -> currentSpec.and(new ProductFilter(name))));
+            criteria.getVendorId().ifPresent(vendorId -> {
+                Vendor vendor = new Vendor(); // Create a Vendor object with the provided ID
+                vendor.setId(vendorId);
+                spec.updateAndGet(currentSpec -> currentSpec.and(new VendorFilter(vendor)));
+            });
+            double minPrice = criteria.getMinPrice().orElse(Double.MIN_VALUE);
+            double maxPrice = criteria.getMaxPrice().orElse(Double.MAX_VALUE);
+            spec.updateAndGet(currentSpec -> currentSpec.and(new PriceRangeFilter(minPrice, maxPrice)));
+            Sort.Direction direction = sortOrder.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+            Sort sort = Sort.by(direction, orderBy); // Create a Sort object based on the orderBy parameter
+            Pageable pageable = PageRequest.of(page, size, sort); // Create a Pageable object for pagination
+            Page<Product> productPage = productRepository.findAll(spec.get(), pageable);
+            if (productPage.isEmpty()) {
+             logger.warn("No products found.");
+            }
+            return productPage.map(this::mapProductToProductInfoDTO);
     }
 
     private String generateSKU(String productName, String category) {
@@ -94,12 +105,18 @@ public class ProductServiceImpl implements ProductService {
     public void addProduct(ProductInfoDTO productInfoDTO) {
         try {
             Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendor().getId());
+            List<Integer> shelvesAvailable=shelfService.getAvailableShelves();
+            if(!shelvesAvailable.contains(productInfoDTO.getShelfNumber()))
+                throw new BadRequestException("Shelf number "+ productInfoDTO.getShelfNumber()+ " is not available pick from "+shelvesAvailable);
+           if(productInfoDTO.getQuantity()>10)
+               throw new BadRequestException("Max Quantity for this product is 10");
             Shelf shelf = new Shelf(productInfoDTO.getQuantity(), productInfoDTO.getShelfNumber(), productInfoDTO.isPrime(), productInfoDTO.getMaxCapacity());
             shelfRepository.save(shelf);
             Product product = new Product();
             setProductDetails(productInfoDTO, vendor, shelf, product);
         }catch(Exception e){
-            throw new RuntimeException("Failed to add product: " + e.getMessage(),e);
+            logger.error(e.getMessage());
+            throw e;
         }
     }
 
@@ -118,6 +135,11 @@ public class ProductServiceImpl implements ProductService {
     public void updateProduct(Long id, ProductInfoDTO productInfoDTO) {
         try {
             Product product = productRepository.getReferenceById(id);
+            List<Integer> shelvesAvailable=shelfService.getAvailableShelves();
+            if(!shelvesAvailable.contains(productInfoDTO.getShelfNumber()))
+                throw new BadRequestException("Shelf number " + productInfoDTO.getShelfNumber() + " is not available pick from " + shelvesAvailable);
+            if(productInfoDTO.getQuantity()>10)
+                throw new BadRequestException("Max Quantity for this product is 10");
             Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendor().getId());
             Shelf shelf = product.getShelf();
             shelf.setShelfNumber(productInfoDTO.getShelfNumber());
@@ -127,14 +149,19 @@ public class ProductServiceImpl implements ProductService {
             shelfRepository.save(shelf);
             setProductDetails(productInfoDTO, vendor, shelf, product);
         }catch(Exception e){
-        throw new RuntimeException("Failed to update product: " + e.getMessage(),e);
-    }
+            logger.error(e.getMessage());
+            throw e;
+        }
     }
 
     @Override
     public void deleteProduct(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        Product product = productRepository.findById(productId).orElse(null);
+        if(product==null) {
+            logger.error("Product not found");
+            throw new ResourceNotFoundException("Product not found with product id: " + productId);
+        }
+        logger.info("Product deleted successfully with product id : "+ productId);
         productRepository.delete(product);
     }
 }
