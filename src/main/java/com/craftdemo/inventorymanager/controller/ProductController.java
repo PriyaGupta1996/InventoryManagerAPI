@@ -1,10 +1,13 @@
 package com.craftdemo.inventorymanager.controller;
 
+import ch.qos.logback.classic.Logger;
 import com.craftdemo.inventorymanager.dto.ProductFilterCriteria;
 import com.craftdemo.inventorymanager.dto.ProductInfoDTO;
-import com.craftdemo.inventorymanager.exception.BadRequestException;
+import com.craftdemo.inventorymanager.dto.ResponseDTO;
 import com.craftdemo.inventorymanager.service.ProductService;
+import com.craftdemo.inventorymanager.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -14,8 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/products")
 public class ProductController {
+    Logger logger = (Logger) LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private final ProductService productService;
 
@@ -34,22 +39,23 @@ public class ProductController {
 
     }
     @PostMapping
-    public ResponseEntity<String> addProduct(@Valid @RequestBody ProductInfoDTO productInfoDTO ){
+    public ResponseEntity<ResponseDTO> addProduct(@Valid @RequestBody ProductInfoDTO productInfoDTO ){
         productService.addProduct(productInfoDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Product added successfully");
+        logger.info("Product added successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body( new ResponseDTO("Product added successfully",HttpStatus.CREATED.value()));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateProduct(@Valid @PathVariable Long id, @Valid @RequestBody ProductInfoDTO productInfoDTO) {
+    public ResponseEntity<ResponseDTO> updateProduct(@Valid @PathVariable Long id, @Valid @RequestBody ProductInfoDTO productInfoDTO) {
         productService.updateProduct(id, productInfoDTO);
-        return ResponseEntity.status(HttpStatus.OK).body("Product updated successfully");
+        return ResponseEntity.status(HttpStatus.OK).body( new ResponseDTO("Product updated successfully",HttpStatus.OK.value()));
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@Valid @PathVariable("id") Long id) {
+    public ResponseEntity<ResponseDTO> deleteProduct(@Valid @PathVariable("id") Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok("Product deleted successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO("Product deleted successfully",HttpStatus.OK.value()));
     }
 
 }
