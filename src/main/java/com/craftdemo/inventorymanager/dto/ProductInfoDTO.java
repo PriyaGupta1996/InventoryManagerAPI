@@ -31,7 +31,7 @@ public class ProductInfoDTO {
     private int shelfNumber;
 
     @Min(value = 1, message = "Max capacity must be greater than or equal to 1")
-    @Max(value = 10, message = "Max capacity must be less than or equal to 10")
+    @Max(value = 50, message = "Max capacity must be less than or equal to 10")
     @NotNull(message="Max Capacity e is required")
     private int maxCapacity;
 

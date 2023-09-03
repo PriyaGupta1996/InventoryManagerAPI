@@ -19,6 +19,7 @@ import com.craftdemo.inventorymanager.service.ProductService;
 import jakarta.transaction.Transactional;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
+    @Value("${product.max_capacity}")
+            int maxCapacity;
     Logger logger = (Logger) LoggerFactory.getLogger(ProductServiceImpl.class);
     private final ProductRepository productRepository;
     private final VendorRepository vendorRepository;
@@ -108,8 +111,8 @@ public class ProductServiceImpl implements ProductService {
             List<Integer> shelvesAvailable=shelfService.getAvailableShelves();
             if(!shelvesAvailable.contains(productInfoDTO.getShelfNumber()))
                 throw new BadRequestException("Shelf number "+ productInfoDTO.getShelfNumber()+ " is not available pick from "+shelvesAvailable);
-           if(productInfoDTO.getQuantity()>10)
-               throw new BadRequestException("Max Quantity for this product is 10");
+           if(productInfoDTO.getQuantity()>maxCapacity)
+               throw new BadRequestException("Max Quantity for this product is "+maxCapacity);
             Shelf shelf = new Shelf(productInfoDTO.getQuantity(), productInfoDTO.getShelfNumber(), productInfoDTO.isPrime(), productInfoDTO.getMaxCapacity());
             shelfRepository.save(shelf);
             Product product = new Product();
@@ -136,10 +139,11 @@ public class ProductServiceImpl implements ProductService {
         try {
             Product product = productRepository.getReferenceById(id);
             List<Integer> shelvesAvailable=shelfService.getAvailableShelves();
-            if(!shelvesAvailable.contains(productInfoDTO.getShelfNumber()))
+            int currentShelf= product.getShelf().getShelfNumber();
+            if(currentShelf!=productInfoDTO.getShelfNumber()  && !shelvesAvailable.contains(productInfoDTO.getShelfNumber()))
                 throw new BadRequestException("Shelf number " + productInfoDTO.getShelfNumber() + " is not available pick from " + shelvesAvailable);
-            if(productInfoDTO.getQuantity()>10)
-                throw new BadRequestException("Max Quantity for this product is 10");
+            if(productInfoDTO.getQuantity()> product.getShelf().getMaxCapacity())
+                throw new BadRequestException("Max Quantity for this product is "+product.getShelf().getMaxCapacity());
             Vendor vendor = vendorRepository.getReferenceById(productInfoDTO.getVendor().getId());
             Shelf shelf = product.getShelf();
             shelf.setShelfNumber(productInfoDTO.getShelfNumber());

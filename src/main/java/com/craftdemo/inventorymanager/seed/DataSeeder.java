@@ -45,7 +45,7 @@ public class DataSeeder implements CommandLineRunner {
         // Seed vendors
         for (int i = 0; i < 10; i++) {
             String vendorName= "Vendor " +i;
-            Vendor vendor = new Vendor(vendorName.toLowerCase(),"https://m.alibaba.com/?tab=all&InAS=y");
+            Vendor vendor = new Vendor(vendorName.toLowerCase(),"https://alibaba.com/?tab=all&InAS=y");
             vendors.add(vendor);
         }
         vendorRepository.saveAll(vendors);
@@ -53,9 +53,9 @@ public class DataSeeder implements CommandLineRunner {
         for(int i=0;i<10;i++){
             Shelf shelf;
             if(i==5)
-                 shelf = new Shelf((new Random().nextInt(50) + 1), i+1,true,10);
+                 shelf = new Shelf((new Random().nextInt(50) + 1), i+1,true,50);
             else
-                 shelf = new Shelf((new Random().nextInt(50) + 1), i+1,false,10);
+                 shelf = new Shelf((new Random().nextInt(50) + 1), i+1,false,50);
 
             shelves.add(shelf);
         }
